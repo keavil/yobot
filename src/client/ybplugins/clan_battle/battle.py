@@ -60,6 +60,9 @@ class ClanBattle:
         '查3': 23,
         '查4': 24,
         '查5': 25,
+        '就位确认': 26,
+        '就位': 27,
+        '就位检查': 28
     }
 
     Server = {
@@ -111,6 +114,9 @@ class ClanBattle:
         User.update({User.authority_group: 1}).where(
             User.qqid.in_(self.setting['super-admin'])
         ).execute()
+
+        # check ready
+        self.ready_list = {}
 
     def _level_by_cycle(self, cycle, *, level_4=None, game_server=None):
         if cycle <= 3:
@@ -1429,6 +1435,32 @@ class ClanBattle:
                 if m.get('message'):
                     reply += '：' + m['message']
             return reply
+        elif match_num == 26:
+            # 启动就位确认
+            if ctx['sender']['role'] == 'member':
+                return '只有管理员可以进行就位确认'
+            self.ready_list[group_id] = []
+            nickname = (ctx['sender'].get('card')
+                                or ctx['sender'].get('nickname'))
+            return ">>%s<<正在进行就位确认！" % nickname
+        elif match_num == 27:
+            if group_id not in self.ready_list:
+                return "当前并未进行就位确认"
+            self.ready_list[group_id].append(user_id)
+            nickname = (ctx['sender'].get('card')
+                                or ctx['sender'].get('nickname'))
+            return "%s 已就位，当前%d人已就位" % (nickname, len(self.ready_list[group_id]))
+        elif match_num == 28:
+            if group_id not in self.ready_list:
+                return "当前并未进行就位确认"
+            ready = self.ready_list[group_id]
+            memberlist = self.get_member_list(group_id)
+            notready = []
+            for member in memberlist:
+                if member['qqid'] not in ready:
+                    notready.append(member['qqid'])
+            msg = "当前就位状态：%d人已就位，%d人未就位：" % (len(ready), len(notready)) + " ".join(atqq(qqid) for qqid in notready)
+            return msg
 
     def register_routes(self, app: Quart):
 
