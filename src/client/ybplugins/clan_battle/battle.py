@@ -1154,7 +1154,13 @@ class ClanBattle:
             return 0
         if len(cmd) < 2:
             return 0
-        return self.Commands.get(cmd[0:2], 0)
+        _logger.info(cmd)
+        _logger.info(self.Commands.get(cmd[0:2], 0))
+        ret = self.Commands.get(cmd[0:2], 0)
+        if ret == 0:
+            ret = self.Commands.get(cmd[0:4], 0)
+        _logger.info(self.Commands.get(cmd[0:2], 0))
+        return ret
 
     def execute(self, match_num, ctx):
         if ctx['message_type'] != 'group':
