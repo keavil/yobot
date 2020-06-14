@@ -61,7 +61,7 @@ class ClanBattle:
         '查4': 24,
         '查5': 25,
         '就位确认': 26,
-        '就位': 27,
+        '已就位': 27,
         '就位检查': 28
     }
 
@@ -1158,8 +1158,10 @@ class ClanBattle:
         _logger.info(self.Commands.get(cmd[0:2], 0))
         ret = self.Commands.get(cmd[0:2], 0)
         if ret == 0:
+            ret = self.Commands.get(cmd[0:3], 0)
+        if ret == 0:
             ret = self.Commands.get(cmd[0:4], 0)
-        _logger.info(self.Commands.get(cmd[0:2], 0))
+        _logger.info(ret)
         return ret
 
     def execute(self, match_num, ctx):
